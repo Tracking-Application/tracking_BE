@@ -1,0 +1,12 @@
+# Core Framework & Server
+fastapi[standard]
+uvicorn
+
+# Data Validation
+pydantic~=2.10.6
+
+# Database
+sqlalchemy
+asyncpg                 # Async PostgreSQL driver
+databases               # Optional: async DB toolkit
+psycopg2-binary         # Optional: sync PostgreSQL driver
