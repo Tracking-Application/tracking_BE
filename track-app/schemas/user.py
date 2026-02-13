@@ -8,13 +8,14 @@ class UserRegister(BaseModel):
     email: EmailStr
     phone: str
     password: str
-    # password: constr(min_length=6, max_length=128)
 
 
 class AdminRegister(BaseModel):
     full_name: str
     email: EmailStr
-    # password: constr(min_length=6, max_length=128)
     password: str
     admin_secret: str
 
+class LoginSchema(BaseModel):
+    email: EmailStr
+    password: str

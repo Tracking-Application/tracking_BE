@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from starlette.middleware.sessions import SessionMiddleware
 from database.db import init_db
-from routes import register 
+from routes import register,login
+import os
+
 
 app = FastAPI(
     title="Book Store API",
@@ -26,6 +28,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(register.router, prefix="/api")
+app.include_router(login.router, prefix="/api")
 
 
 # Startup event → create tables

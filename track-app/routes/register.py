@@ -10,11 +10,11 @@ from utils.passwd import hash_password
 
 router = APIRouter()
 
-######################
+# ===============================
 ## User Register
-######################
+# ===============================
 
-@router.post("/register/user", tags=["auth"])
+@router.post("/register/user", tags=["User"])
 async def register_user(
     user_data: UserRegister,
     db: AsyncSession = Depends(get_session)
@@ -40,13 +40,13 @@ async def register_user(
     return {"message": "User registered successfully"}
 
 
-######################
+# ===============================
 ## Admin Register
-######################
+# ===============================
 
 ADMIN_SECRET = "#12345"
 
-@router.post("/register/admin",tags=["auth"])
+@router.post("/register/admin", tags=["Admin"])
 async def register_admin(
     admin_data: AdminRegister,
     db: AsyncSession = Depends(get_session)
