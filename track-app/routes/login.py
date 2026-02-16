@@ -7,14 +7,6 @@ from database.db import get_session
 from models.user import User
 
 
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-    
 router = APIRouter()
 
 @router.post("/login",tags=["Login"])
@@ -39,9 +31,6 @@ async def login_user(
     return {
         "message": "Login successful",
         "user_id": user.id,
-        "name": user.name,
+        "name"   : user.name,
         "role": user.role
     }
-
-
-

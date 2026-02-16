@@ -19,3 +19,7 @@ class AdminRegister(BaseModel):
 class LoginSchema(BaseModel):
     email: EmailStr
     password: str
+
+class UpdateUserProfile(BaseModel):
+    name: str
+    phone: str
