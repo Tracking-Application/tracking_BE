@@ -4,14 +4,14 @@ from typing import Optional
 
 
 class UserRegister(BaseModel):
-    full_name: str
+    name: str
     email: EmailStr
     phone: str
     password: str
 
 
 class AdminRegister(BaseModel):
-    full_name: str
+    name: str
     email: EmailStr
     password: str
     admin_secret: str

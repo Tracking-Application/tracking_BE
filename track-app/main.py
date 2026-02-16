@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
+# from starlette.middleware.sessions import SessionMiddleware
 from database.db import init_db
 from routes import register,login
-import os
 
 
 app = FastAPI(
