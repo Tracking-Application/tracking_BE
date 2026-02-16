@@ -8,8 +8,7 @@ from schemas.product import ProductResponse, ProductCreate
 
 router = APIRouter()
 
-import os
-import shutil
+import os, shutil, uuid
 from fastapi import UploadFile, File, Form
 
 UPLOAD_FOLDER = "uploads"
@@ -54,21 +53,119 @@ async def add_product(
     }
 
 
-# @router.post("/admin/add-product", response_model=ProductResponse, tags=["Product"])
-# async def add_product(
-#     product_data: ProductCreate,
-#     db: AsyncSession = Depends(get_session)
-# ):
-#     new_product = Product(
-#         title=product_data.title,
-#         author=product_data.author,
-#         price=product_data.price,
-#         image_url=product_data.image_url,
-#         description=product_data.description
-#     )
+@router.get("/get-product", tags=["Product"])
+async def get_all_products(
+    db: AsyncSession = Depends(get_session)
+):
+    result = await db.execute(select(Product))
+    products = result.scalars().all()
 
-#     db.add(new_product)
-#     await db.commit()
-#     await db.refresh(new_product)
+    return [
+        {
+            "id": product.id,
+            "title": product.title,
+            "author": product.author,
+            "price": product.price,
+            "description": product.description,
+            "image_url": f"http://localhost:8000/{product.image_url}",
+            "created_at": product.created_at
+        }
+        for product in products
+    ]
 
-#     return new_product
+@router.get("/product/{product_id}", tags=["Product"])
+async def get_single_product(
+    product_id: int,
+    db: AsyncSession = Depends(get_session)
+):
+    result = await db.execute(
+        select(Product).where(Product.id == product_id)
+    )
+    product = result.scalar_one_or_none()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return {
+        "id": product.id,
+        "title": product.title,
+        "author": product.author,
+        "price": product.price,
+        "description": product.description,
+        "image_url": f"http://localhost:8000/{product.image_url}",
+        "created_at": product.created_at
+    }
+
+
+UPLOAD_FOLDER = "uploads"
+
+@router.put("/update-product/{product_id}", tags=["Product"])
+async def update_product(
+    product_id: int,
+    title: str = Form(...),
+    author: str = Form(...),
+    price: float = Form(...),
+    description: str = Form(...),
+    image: UploadFile = File(None),  # optional image
+    db: AsyncSession = Depends(get_session)
+):
+    result = await db.execute(
+        select(Product).where(Product.id == product_id)
+    )
+    product = result.scalar_one_or_none()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Update basic fields
+    product.title = title
+    product.author = author
+    product.price = price
+    product.description = description
+
+    # If new image uploaded
+    if image:
+        # Delete old image file
+        if os.path.exists(product.image_url):
+            os.remove(product.image_url)
+
+        # Save new image
+        unique_filename = f"{uuid.uuid4()}_{image.filename}"
+        file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+
+        product.image_url = file_path
+
+    await db.commit()
+    await db.refresh(product)
+
+    return {
+        "message": "Product updated successfully",
+        "id": product.id,
+        "image_url": f"http://localhost:8000/{product.image_url}"
+    }
+
+@router.delete("/delete-product/{product_id}", tags=["Product"])
+async def delete_product(
+    product_id: int,
+    db: AsyncSession = Depends(get_session)
+):
+    result = await db.execute(
+        select(Product).where(Product.id == product_id)
+    )
+    product = result.scalar_one_or_none()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Delete image file
+    if os.path.exists(product.image_url):
+        os.remove(product.image_url)
+
+    # Delete product from DB
+    await db.delete(product)
+    await db.commit()
+
+    return {"message": "Product deleted successfully"}
