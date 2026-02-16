@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # from starlette.middleware.sessions import SessionMiddleware
 from database.db import init_db
-from routes import register,login
+from routes import register,login, add_product
+from fastapi.staticfiles import StaticFiles
+
 
 
 app = FastAPI(
@@ -14,6 +16,9 @@ app = FastAPI(
     openapi_url="/api/openapi.json" # OpenAPI schema
 )
 
+app = FastAPI()
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # CORS (React support)
 app.add_middleware(
@@ -28,7 +33,7 @@ app.add_middleware(
 # Include routers
 app.include_router(register.router, prefix="/api")
 app.include_router(login.router, prefix="/api")
-
+app.include_router(add_product.router, prefix="/api")
 
 # Startup event → create tables
 @app.on_event("startup")
@@ -39,3 +44,5 @@ async def on_startup():
 @app.get("/")
 async def root():
     return {"message": "Book Store API Running 🚀"}
+
+

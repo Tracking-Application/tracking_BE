@@ -118,6 +118,7 @@ async def get_all_customers(
         for user in users
     ]
 
+
 # ===============================
 ## Admin Register
 # ===============================
@@ -150,3 +151,21 @@ async def register_admin(
     await db.commit()
 
     return {"message": "Admin registered successfully"}
+
+from sqlalchemy import func
+
+@router.get("/users/count", tags=["Admin"])
+async def get_total_customers(
+    db: AsyncSession = Depends(get_session)
+):
+    result = await db.execute(
+        select(func.count())
+        .select_from(User)
+        .where(User.role == RoleEnum.customer)
+    )
+
+    total_users = result.scalar()
+
+    return {
+        "total_customers": total_users
+    }
