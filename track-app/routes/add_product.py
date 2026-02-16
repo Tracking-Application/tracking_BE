@@ -14,7 +14,7 @@ from fastapi import UploadFile, File, Form
 
 UPLOAD_FOLDER = "uploads"
 
-@router.post("/admin/add-product",tags=["Product"])
+@router.post("/add-product",tags=["Product"])
 async def add_product(
     title: str = Form(...),
     author: str = Form(...),
