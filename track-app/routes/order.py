@@ -11,7 +11,9 @@ from schemas.order import OrderCreate, OrderStatusUpdate
 #router = APIRouter(prefix="/orders", tags=["Orders"])
 router = APIRouter()
 
+###############################################################################
 #CREATE ORDER (USER)
+###############################################################################
 
 @router.post("/orders/create", tags=["Orders"])
 async def create_order(
@@ -62,3 +64,106 @@ async def create_order(
         "order_id": new_order.id
     }
 
+###############################################################################
+# GET MY ORDERS (USER PAGE)
+###############################################################################
+
+@router.get("/my-orders/{user_id}", tags=["Orders"])
+async def get_my_orders(
+    user_id: int,
+    db: AsyncSession = Depends(get_session)
+):
+
+    result = await db.execute(
+        select(Order, Product.title)
+        .join(Product, Order.product_id == Product.id)
+        .where(Order.user_id == user_id)
+    )
+
+    orders = []
+
+    for order, title in result.all():
+        orders.append({
+            "id": order.id,
+            "product_title": title,
+            "quantity": order.quantity,
+            "total_price": order.total_price,
+            "status": order.status,
+            "created_at": order.created_at
+        })
+
+    return orders
+
+###############################################################################
+# ADMIN – GET ALL ORDERS
+###############################################################################
+
+@router.get("/admin/order/{admin_id}", tags=["Orders"])
+async def get_all_orders(
+    admin_id: int,
+    db: AsyncSession = Depends(get_session)
+):
+
+    # Verify admin
+    result = await db.execute(
+        select(User).where(User.id == admin_id)
+    )
+    admin = result.scalar_one_or_none()
+
+    if not admin or admin.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    result = await db.execute(
+        select(Order, Product.title, User.name)
+        .join(Product, Order.product_id == Product.id)
+        .join(User, Order.user_id == User.id)
+    )
+
+    data = []
+
+    for order, product_title, user_name in result.all():
+        data.append({
+            "order_id": order.id,
+            "customer": user_name,
+            "product": product_title,
+            "quantity": order.quantity,
+            "total_price": order.total_price,
+            "status": order.status
+        })
+
+    return data
+
+###############################################################################
+# ADMIN – UPDATE ORDER STATUS
+###############################################################################
+
+@router.put("/{admin_id}/update-status/{order_id}", tags=["Orders"])
+async def update_order_status(
+    admin_id: int,
+    order_id: int,
+    status_data: OrderStatusUpdate,
+    db: AsyncSession = Depends(get_session)
+):
+
+    # Check admin
+    result = await db.execute(
+        select(User).where(User.id == admin_id)
+    )
+    admin = result.scalar_one_or_none()
+
+    if not admin or admin.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    result = await db.execute(
+        select(Order).where(Order.id == order_id)
+    )
+    order = result.scalar_one_or_none()
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    order.status = status_data.status
+
+    await db.commit()
+
+    return {"message": "Order status updated successfully"}
