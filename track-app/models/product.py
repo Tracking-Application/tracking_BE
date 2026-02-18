@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float, Text, Date
+from sqlalchemy import Column, Integer, String, Float, Text, Date, ForeignKey, DateTime
 from models.base import Base
 from datetime import date
+from sqlalchemy.sql import func
 
 class Product(Base):
     __tablename__ = "products"
@@ -12,3 +13,9 @@ class Product(Base):
     image_url = Column(String, nullable=False)
     description = Column(Text, nullable=False)
     created_at = Column(Date, default=date.today)
+
+
+
+
+
+

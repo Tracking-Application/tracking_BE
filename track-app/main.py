@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # from starlette.middleware.sessions import SessionMiddleware
 from database.db import init_db
-from routes import register,login, add_product
+from routes import register,login, add_product, order
 from fastapi.staticfiles import StaticFiles
 
 
@@ -34,6 +34,7 @@ app.add_middleware(
 app.include_router(register.router, prefix="/api")
 app.include_router(login.router, prefix="/api")
 app.include_router(add_product.router, prefix="/api")
+app.include_router(order.router, prefix="/api")
 
 # Startup event → create tables
 @app.on_event("startup")
