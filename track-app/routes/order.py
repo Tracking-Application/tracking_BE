@@ -232,3 +232,21 @@ async def total_pending_orders(
     total = result.scalar()
 
     return {"total_pending": total}
+
+###############################################################################
+# ADMIN – Total Orders by SHIPPING
+###############################################################################
+
+@router.get("/total/shipping", tags=["Orders"])
+async def total_pending_orders(
+    db: AsyncSession = Depends(get_session)
+):
+
+    result = await db.execute(
+        select(func.count(Order.id))
+        .where(Order.status == "Shipping")
+    )
+
+    total = result.scalar()
+
+    return {"total_shipping": total}
