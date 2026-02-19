@@ -172,7 +172,7 @@ async def update_order_status(
 # ADMIN – GET TOTAL ORDER 
 ###############################################################################
 
-@router.get("/total_order/{admin_id}",tags=["Orders"])
+@router.get("/total_order/{admin_id}",tags=["Order-Details"])
 async def admin_total_orders(
     admin_id: int,
     db: AsyncSession = Depends(get_session)
@@ -201,7 +201,7 @@ async def admin_total_orders(
 # ADMIN – Total Orders by DELIVERED
 ###############################################################################
 
-@router.get("/total/delivered", tags=["Orders"])
+@router.get("/total/delivered", tags=["Order-Details"])
 async def total_delivered_orders(
     db: AsyncSession = Depends(get_session)
 ):
@@ -219,7 +219,7 @@ async def total_delivered_orders(
 # ADMIN – Total Orders by PENDING
 ###############################################################################
 
-@router.get("/total/pending", tags=["Orders"])
+@router.get("/total/pending", tags=["Order-Details"])
 async def total_pending_orders(
     db: AsyncSession = Depends(get_session)
 ):
@@ -237,7 +237,7 @@ async def total_pending_orders(
 # ADMIN – Total Orders by SHIPPING
 ###############################################################################
 
-@router.get("/total/shipping", tags=["Orders"])
+@router.get("/total/shipping", tags=["Order-Details"])
 async def total_pending_orders(
     db: AsyncSession = Depends(get_session)
 ):
